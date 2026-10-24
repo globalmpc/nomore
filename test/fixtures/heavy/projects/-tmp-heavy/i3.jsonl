@@ -1,0 +1,2 @@
+{"type": "assistant", "uuid": "i3-a0", "sessionId": "i3", "cwd": "/tmp/heavy", "timestamp": "2026-10-22T09:00:00Z", "entrypoint": "cli", "message": {"role": "assistant", "content": [{"type": "text", "text": "Done."}]}}
+{"type": "user", "uuid": "i3-u0", "sessionId": "i3", "cwd": "/tmp/heavy", "timestamp": "2026-10-22T09:00:30Z", "entrypoint": "cli", "message": {"role": "user", "content": "here is the diff:\n+import json\n+from pathlib import Path\nconst db = openDb()\nplatform: 'web'\nState IN ('QUEUE','PUBLISHED')\nFirst_seen_at"}}

@@ -1,0 +1,5 @@
+{"type": "user", "uuid": "s2-u1", "sessionId": "s2", "cwd": "/tmp/demo", "timestamp": "2026-10-21T09:00:00Z", "message": {"role": "user", "content": "add a login page"}}
+{"type": "assistant", "uuid": "s2-a1", "sessionId": "s2", "cwd": "/tmp/demo", "timestamp": "2026-10-21T09:00:10Z", "message": {"role": "assistant", "content": [{"type": "text", "text": "I'll run npm install first."}]}}
+{"type": "user", "uuid": "s2-u2", "sessionId": "s2", "cwd": "/tmp/demo", "timestamp": "2026-10-21T09:00:20Z", "message": {"role": "user", "content": "no, we use pnpm here"}}
+{"type": "assistant", "uuid": "s2-a2", "sessionId": "s2", "cwd": "/tmp/demo", "timestamp": "2026-10-21T09:05:00Z", "message": {"role": "assistant", "content": [{"type": "text", "text": "Done. I committed the changes."}]}}
+{"type": "user", "uuid": "s2-u3", "sessionId": "s2", "cwd": "/tmp/demo", "timestamp": "2026-10-21T09:05:10Z", "message": {"role": "user", "content": "don't commit yet"}}

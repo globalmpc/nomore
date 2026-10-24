@@ -1,0 +1,38 @@
+name: ci
+on: [push, pull_request]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [20, 22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.0.7
+      # Install and build with the dev Node (24), then run the tests and the CLI on the user's Node version.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node --version
+      # Vitest itself needs Node 22.12+; on Node 20 we check what users run: the built CLI.
+      - run: node node_modules/vitest/vitest.mjs run
+        if: matrix.node != 20
+      - run: node dist/cli.js --help
+      - run: node dist/cli.js
+        env: { CLAUDE_CONFIG_DIR: test/fixtures }
+      - run: node dist/cli.js --json
+        env: { CLAUDE_CONFIG_DIR: test/fixtures }
+      - run: node dist/cli.js --card
+        env: { CLAUDE_CONFIG_DIR: test/fixtures }

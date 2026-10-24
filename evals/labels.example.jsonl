@@ -1,0 +1,3 @@
+{"id": "REQ-01", "label": "matches", "note": "login page shows the MFA step"}
+{"id": "REQ-02", "label": "differs", "note": "spec says 'supersedes', screen says 'Replaces'"}
+{"id": "REQ-03", "label": "not_found", "note": "no credential recovery anywhere"}

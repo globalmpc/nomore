@@ -1,0 +1,2 @@
+{"type": "user", "uuid": "a1-u1", "sessionId": "a1", "cwd": "/tmp/heavy", "timestamp": "2026-10-21T08:00:00Z", "entrypoint": "sdk-cli", "message": {"role": "user", "content": "Unified diff (only + lines are new):\n+import json\n+  return out\nInvestigate per the method in your instructions.\nChanged files (you may Read these):"}}
+{"type": "assistant", "uuid": "a1-a1", "sessionId": "a1", "cwd": "/tmp/heavy", "timestamp": "2026-10-21T08:00:05Z", "entrypoint": "sdk-cli", "message": {"role": "assistant", "content": [{"type": "text", "text": "Reviewed."}]}}

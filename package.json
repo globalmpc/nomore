@@ -1,0 +1,39 @@
+{
+  "name": "nomore",
+  "version": "0.1.0",
+  "description": "Stop telling Claude Code the same thing twice: a CLAUDE.md rule pack from ~10k issues, and a local tool that finds what you keep repeating.",
+  "keywords": [
+    "claude-code",
+    "claude",
+    "claude-md",
+    "ai-agents",
+    "developer-tools",
+    "cli"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "nomore": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "mine": "tsx scripts/mine-issues.ts"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

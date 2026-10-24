@@ -1,0 +1,25 @@
+# secrets: never commit
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+
+# personal Claude notes and settings
+CLAUDE.local.md
+.claude/settings.local.json
+
+# build, deps, caches
+node_modules/
+dist/
+coverage/
+.superpowers/
+
+# private or regenerable data (transcripts, raw issues, labelling work)
+data/
+out/
+corpus/
+evals/candidates.jsonl
+
+.DS_Store
