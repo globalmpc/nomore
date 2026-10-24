@@ -11,7 +11,7 @@ repeating.
 ## Rule pack: 20 rules in 10 seconds
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/globalmpc/nomore/master/rules/CLAUDE.md -o nomore-rules.md
+curl -fsSL https://raw.githubusercontent.com/globalmpc/nomore/main/rules/CLAUDE.md -o nomore-rules.md
 ```
 
 Then add one line to your `CLAUDE.md`: `@nomore-rules.md` (or put both in `~/.claude/` for every project). Every rule
