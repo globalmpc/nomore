@@ -186,7 +186,7 @@ describe("empty result", () => {
       const r = run(args, config);
       expect(r.status).toBe(0);
       expect(r.stdout).toContain("No instructions repeated across sessions yet.");
-      expect(r.stdout).toMatch(/Meanwhile, start with the 20-rule pack: https:\/\/github\.com\/\S+\/blob\/master\/rules\/CLAUDE\.md/);
+      expect(r.stdout).toMatch(/Meanwhile, start with the 20-rule pack: https:\/\/github\.com\/\S+\/blob\/main\/rules\/CLAUDE\.md/);
     }
     rmSync(config, { recursive: true });
   });

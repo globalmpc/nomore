@@ -2,7 +2,7 @@ import type { Report, Suggestion } from "./types.js";
 
 // The public repo; change to the org's repo at handover (README's install link too).
 export const REPO_URL = "https://github.com/globalmpc/nomore";
-export const NOTHING_YET = `No instructions repeated across sessions yet.\nMeanwhile, start with the 20-rule pack: ${REPO_URL}/blob/master/rules/CLAUDE.md`;
+export const NOTHING_YET = `No instructions repeated across sessions yet.\nMeanwhile, start with the 20-rule pack: ${REPO_URL}/blob/main/rules/CLAUDE.md`;
 
 const line = (s: Suggestion) =>
   `● ${s.text}\n  ${s.count}× in ${s.sessions} sessions, last ${s.lastSeen.slice(0, 10)}\n` +
