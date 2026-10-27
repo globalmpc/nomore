@@ -1,5 +1,5 @@
 {
-  "name": "nomore",
+  "name": "@globalmpc/nomore",
   "version": "0.1.0",
   "description": "Stop telling Claude Code the same thing twice: a CLAUDE.md rule pack from ~10k issues, and a local tool that finds what you keep repeating.",
   "keywords": [
@@ -11,6 +11,12 @@
     "cli"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/globalmpc/nomore.git"
+  },
+  "homepage": "https://github.com/globalmpc/nomore#readme",
+  "bugs": "https://github.com/globalmpc/nomore/issues",
   "type": "module",
   "bin": {
     "nomore": "dist/cli.js"
@@ -35,5 +41,8 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

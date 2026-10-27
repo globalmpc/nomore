@@ -2,8 +2,8 @@
 
 **Stop telling Claude Code the same thing twice.**
 
-We read nearly 10,000 Claude Code GitHub issues about how the model behaves, and turned the most-upvoted complaints
-into 20 ready `CLAUDE.md` rules. Install them in 10 seconds. Then let `npx nomore` find the things *you* keep
+We read nearly 10,000 Claude Code GitHub issues about how the model behaves, and turned the most-reacted complaints
+into 20 ready `CLAUDE.md` rules. Install them in 10 seconds. Then let `npx @globalmpc/nomore` find the things *you* keep
 repeating.
 
 ![nomore: repeated instructions become CLAUDE.md rules](assets/demo.gif)
@@ -34,7 +34,7 @@ How they were chosen: every `anthropics/claude-code` issue labelled `area:model`
 2026-10-24 (7,994 after dropping pull requests, duplicates and withdrawn reports). The 7,897 with words in their
 title were grouped by title similarity ≥ 0.5 and ranked by Σ(1 + reactions); 20 behaviours a `CLAUDE.md` rule can
 change were then picked by hand, from issues still open or closed as not planned. Each rule currently rests on one
-issue and its upvotes. Reproduce with `bash scripts/fetch-issues.sh && pnpm mine`.
+issue and its reactions. Reproduce with `bash scripts/fetch-issues.sh && pnpm mine`.
 
 **If a rule saved you a correction, star the repo so others find it.** Know a rule that belongs here?
 [Propose it](../../issues/new?template=propose-a-rule.md).
@@ -44,10 +44,10 @@ issue and its upvotes. Reproduce with `bash scripts/fetch-issues.sh && pnpm mine
 Finds the instructions **you** keep repeating across your Claude Code sessions and suggests them as rules.
 
 ```bash
-npx nomore                  # what you keep telling Claude (sessions active in the last 30 days)
-npx nomore --apply          # pick suggestions one by one (yes / no / edit) and add them to CLAUDE.md
-npx nomore --project .      # only this project; --apply then writes this project's CLAUDE.md
-npx nomore --card           # a short summary to share: totals only
+npx @globalmpc/nomore               # what you keep telling Claude (sessions active in the last 30 days)
+npx @globalmpc/nomore --apply       # pick suggestions one by one (yes / no / edit) and add them to CLAUDE.md
+npx @globalmpc/nomore --project .   # only this project; --apply then writes this project's CLAUDE.md
+npx @globalmpc/nomore --card        # a short summary to share: totals only
 ```
 
 **Preview, honestly:** most things people repeat are tasks ("commit", "continue"), not lasting preferences. On our
