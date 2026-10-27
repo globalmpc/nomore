@@ -1,6 +1,6 @@
 ---
 name: Wrong suggestion
-about: npx nomore suggested something that isn't a rule (helps us improve precision)
+about: npx @globalmpc/nomore suggested something that isn't a rule (helps us improve precision)
 title: "Wrong suggestion: "
 labels: precision
 ---

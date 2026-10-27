@@ -60,7 +60,7 @@
   <div class="win">
     <div class="bar"><i></i><i></i><i></i><span>terminal</span></div>
     <div class="body">
-      <div><span class="dim">$ </span><span data-type="npx nomore" data-type-at="4900"></span></div>
+      <div><span class="dim">$ </span><span data-type="npx @globalmpc/nomore" data-type-at="4700"></span></div>
       <div data-at="5700" class="dim">nomore · 86 sessions · 571 instructions</div>
       <div data-at="6100" class="h">Repeated instructions</div>
       <div data-at="6400"><span class="warn">●</span> Use pnpm, not npm</div>
@@ -79,7 +79,7 @@
   <div class="win">
     <div class="bar"><i></i><i></i><i></i><span>terminal</span></div>
     <div class="body">
-      <div><span class="dim">$ </span><span data-type="npx nomore --apply" data-type-at="9300"></span></div>
+      <div><span class="dim">$ </span><span data-type="npx @globalmpc/nomore --apply" data-type-at="9100"></span></div>
       <div data-at="10300" class="dim">Rules will be added to ~/.claude/CLAUDE.md</div>
       <div data-at="10600">Add “Use pnpm, not npm”? <span class="dim">(5× in 3 sessions) [y/n/e/q]</span> <span class="ok">y</span></div>
       <div data-at="11000">Add “Don't commit yet”? <span class="dim">(4× in 2 sessions) [y/n/e/q]</span> <span class="ok">e</span></div>
@@ -99,15 +99,15 @@
   <div class="end">
     <div class="logo" data-at="13300">nomore</div>
     <div class="tag" data-at="13500">Stop telling your AI agent the same thing twice.</div>
-    <div class="line" data-at="14000"><span class="ok">→</span> 20 rules from the most-upvoted Claude Code issues: <span class="user">rules/CLAUDE.md</span></div>
-    <div class="line" data-at="14300"><span class="ok">→</span> Your own repeated instructions: <span class="user">npx nomore</span></div>
+    <div class="line" data-at="14000"><span class="ok">→</span> 20 rules from the most-reacted Claude Code issues: <span class="user">rules/CLAUDE.md</span></div>
+    <div class="line" data-at="14300"><span class="ok">→</span> Your own repeated instructions: <span class="user">npx @globalmpc/nomore</span></div>
     <div class="line dim" data-at="14600">Runs locally. Nothing leaves your machine.</div>
   </div>
 </section>
 
 <script>
   // SPEED stretches the whole timeline; the data-at times below are written for SPEED = 1.
-  const SPEED = 1.5, DURATION = 16500 * SPEED, TYPE_MS = 55, FADE_MS = 250;
+  const SPEED = 1.5, DURATION = 16500 * SPEED, TYPE_MS = 40, FADE_MS = 250;
   function render(t) {
     for (const s of document.querySelectorAll("[data-from]"))
       s.style.display = t >= +s.dataset.from && t < +s.dataset.to ? "" : "none";

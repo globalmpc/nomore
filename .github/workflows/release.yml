@@ -1,0 +1,67 @@
+# Publishes @globalmpc/nomore to npm when a version tag (v0.1.0) is pushed.
+#
+# Same setup as globalmpc/rwa-kit-js: npm trusted publishing. GitHub issues a short-lived OIDC token for
+# this run, npm accepts it, and provenance is attached. No npm token exists in this repository; the package
+# is configured on npmjs.com (by agent-mpc) against this repository and this file name.
+name: release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to npm
+    if: github.repository == 'globalmpc/nomore'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # creates the GitHub Release
+      id-token: write   # OIDC token for npm trusted publishing
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      # Only reviewed code gets the publishing identity: the tagged commit must already be on main.
+      - name: Tag is on main
+        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "$GITHUB_REF_NAME is not on main"; exit 1; }
+
+      - name: Tag matches package.json
+        run: |
+          declared=$(node -p "require('./package.json').version")
+          test "v$declared" = "$GITHUB_REF_NAME" || { echo "Tag is $GITHUB_REF_NAME, package.json says $declared"; exit 1; }
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 11.0.7
+
+      # Trusted publishing needs npm 11.5.1 or newer, which Node 24 ships.
+      # No registry-url here: setup-node would then expect an auth token that does not exist.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
+      # --provenance is implied by trusted publishing; passing it makes a misconfigured
+      # publisher fail here instead of publishing without provenance.
+      # Skipped when this version is already on npm, so a rerun after a failed GitHub Release can finish.
+      - name: Publish
+        run: |
+          if npm view "$(node -p "require('./package.json').name")@${GITHUB_REF_NAME#v}" version >/dev/null 2>&1; then
+            echo "Already on npm; skipping publish"
+          else
+            npm publish --access public --provenance
+          fi
+
+      - name: GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "nomore $GITHUB_REF_NAME" --generate-notes
