@@ -1,17 +1,20 @@
 // Re-scores labels from scripts/label-groups.ts against what the tool shows now, so nobody has to label again.
 // Prints numbers only. --variants compares candidate filters and rankings on the same labels.
-// Usage: pnpm tsx scripts/score-labels.ts <labels.jsonl> [days, default 30] [--variants]
+// Usage: pnpm tsx scripts/score-labels.ts <labels.jsonl> [days, default 30] [--variants] [--agent claude|codex]
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { runPipeline } from "../src/pipeline.js";
+import { resolveCodexHome } from "../src/codex.js";
 import { resolveConfigDir } from "../src/sessions.js";
 import type { Suggestion } from "../src/types.js";
 
-const USAGE = "usage: pnpm tsx scripts/score-labels.ts <labels.jsonl> [days, default 30] [--variants]";
+const USAGE = "usage: pnpm tsx scripts/score-labels.ts <labels.jsonl> [days, default 30] [--variants] [--agent claude|codex]";
 const args = process.argv.slice(2);
+const at = args.indexOf("--agent");
+const agent = at < 0 ? "claude" : args.splice(at, 2)[1]; // ponytail: no --agent=codex form
 const variants = args.includes("--variants");
 const [file, days = "30", ...extra] = args.filter((a) => a !== "--variants");
-if (!file || file.startsWith("-") || extra.length > 0 || !(Number(days) > 0)) {
+if ((agent !== "claude" && agent !== "codex") || !file || file.startsWith("-") || extra.length > 0 || !(Number(days) > 0)) {
   console.error(USAGE);
   process.exit(1);
 }
@@ -21,7 +24,7 @@ const labels = new Map(
     return [id, label] as const;
   }),
 );
-const all = (await runPipeline({ configDir: resolveConfigDir(process.env, homedir()), days: Number(days), nowMs: Date.now() })).suggestions;
+const all = (await runPipeline({ configDir: agent === "codex" ? resolveCodexHome(process.env, homedir()) : resolveConfigDir(process.env, homedir()), days: Number(days), nowMs: Date.now(), agent })).suggestions;
 
 const score = (shown: Suggestion[]) => {
   const ids = shown.map((s) => s.id);

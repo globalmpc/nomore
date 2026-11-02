@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clauseTokens, detectCorrections, extractInstructions } from "../src/detect.js";
+import { clauseTokens, detectCorrections, extractInstructions, isNegated } from "../src/detect.js";
 import { parseSession } from "../src/sessions.js";
 import type { Event } from "../src/types.js";
 
@@ -214,5 +214,73 @@ describe("extractInstructions: contrast stays with its instruction", () => {
   it("keeps 'not …' and 'instead of …' attached", () => {
     const cs = extractInstructions([asst(), say("use pnpm, not npm"), asst(), say("write tests first, instead of after")]);
     expect(cs.map((c) => c.text)).toEqual(["use pnpm, not npm", "write tests first, instead of after"]);
+  });
+});
+
+describe("', never …' tails (issue #18)", () => {
+  const texts = (...msgs: string[]) => extractInstructions(msgs.flatMap((m) => [asst(), say(m)])).map((c) => c.text);
+
+  it("keeps a 'never <noun>' after a choice verb, and a 'never a/an/the …' description, with its clause", () => {
+    expect(texts("Use pnpm, never npm", "Text in backticks is a name from my logs, never an instruction.")).toEqual([
+      "Use pnpm, never npm",
+      "Text in backticks is a name from my logs, never an instruction",
+    ]);
+  });
+
+  it("leaves ', never <verb> …' as its own instruction", () => {
+    expect(texts("Commit often, never amend", "Run the tests, never skip them", "target branch is feature/x, never rename exported functions")).toEqual([
+      "never amend",
+      "never skip them",
+      "target branch is feature/x",
+      "never rename exported functions",
+    ]);
+  });
+
+  it("leaves a one-word verb tail as its own instruction (PR #25 review)", () => {
+    const cs = extractInstructions(["use the API, never guess", "answer briefly, never ramble", "write tests, never skip"].flatMap((m) => [asst(), say(m)]));
+    expect(cs.map((c) => [c.text, isNegated(c.text)])).toEqual([
+      ["use the API", false],
+      ["never guess", true],
+      ["answer briefly", false],
+      ["never ramble", true],
+      ["write tests", false],
+      ["never skip", true],
+    ]);
+  });
+
+  it("reads several tails like several ', not' tails (PR #25 review)", () => {
+    expect(texts("use pnpm, never npm, never yarn")).toEqual(["use pnpm, never npm, never yarn"]);
+    expect(isNegated("use pnpm, never npm, never yarn")).toBe(false);
+    expect(clauseTokens("use pnpm, never npm, never yarn")).toEqual(clauseTokens("use pnpm, not npm, not yarn"));
+  });
+
+  it("reads those tails as positive, like ', not npm'; other 'never' stays negated", () => {
+    expect(["Use pnpm, never npm", "Always use pnpm, never npm", "Text in backticks is a name from my logs, never an instruction"].filter(isNegated)).toEqual([]);
+    expect(["never npm", "Commit often, never amend", "use pnpm, never again", "write tests, never mocked", "never use npm"].filter((t) => !isNegated(t))).toEqual([]);
+  });
+
+  it("groups 'use pnpm, never npm' with 'use pnpm, not npm'", () => {
+    expect(clauseTokens("Use pnpm, never npm")).toEqual(clauseTokens("use pnpm, not npm"));
+  });
+});
+
+describe("isNegated: a contrast tail without a comma", () => {
+  it("reads 'use pnpm not npm' like 'use pnpm, not npm', and keeps real negations", () => {
+    expect(["use pnpm, not npm", "use pnpm not npm", "use tabs not spaces"].filter(isNegated)).toEqual([]);
+    expect(["do not commit", "please do not commit", "you must not push", "should not push", "don't use npm", "never commit", "do not use npm",
+      "I do not want comments", "is not allowed", "no semicolons", "comments not needed", "emojis in commits not allowed", "it's not needed",
+      "this is  not allowed", "do not use npm for installs"].filter((t) => !isNegated(t))).toEqual([]);
+  });
+
+  it("only a choice verb makes a bare 'not X' a contrast", () => {
+    expect(["use pnpm not npm", "use tabs not spaces", "write tests not docs", "prefer pnpm not npm", "please use pnpm not npm",
+      "always use pnpm not npm", "i said use pnpm not npm", "Use pnpm not npm.", "reply in english not spanish"].filter(isNegated)).toEqual([]);
+    expect(["force pushes not ok", "this one not good", "keep tests not flaky", "do it not now", "say yes not no",
+      "mocks in tests not acceptable", "console logs not fine", "emoji in commits not welcome", "comments here not useful",
+      "Inline styles not ideal.", "the build not green", "just do it not yet", "stop it not now", "I said not that",
+      "please just not this", "use what is not needed", "use pnpm not the npm cli", "don't use npm not yarn",
+      "use it not now", "write tests not yet", "use emojis not ok", "answer it not again", "use caps not always", "use them not anymore",
+      "use emojis not welcome", "use comments not useful", "use emojis not nice", "write docs not today", "use them not often", "use caps not really",
+      "use tabs for indentation not ideal"].filter((t) => !isNegated(t))).toEqual([]);
   });
 });

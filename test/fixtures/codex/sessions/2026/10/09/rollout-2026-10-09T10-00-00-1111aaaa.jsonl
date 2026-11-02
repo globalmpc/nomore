@@ -1,0 +1,6 @@
+{"timestamp":"2026-10-20T10:00:00.000Z","type":"session_meta","payload":{"id":"1111aaaa","cwd":"/tmp/demo","originator":"codex-tui","source":"cli","cli_version":"0.163.0"}}
+{"timestamp":"2026-10-20T10:00:01.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"# AGENTS.md instructions for /tmp/demo\n\n<INSTRUCTIONS>Be nice.</INSTRUCTIONS>"}]}}
+{"timestamp":"2026-10-20T10:00:02.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"<environment_context>\n  <cwd>/tmp/demo</cwd>\n</environment_context>"}]}}
+{"timestamp":"2026-10-20T10:00:03.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"<turn_aborted>\nThe user interrupted the previous turn.\n</turn_aborted>"}]}}
+{"timestamp":"2026-10-20T10:00:04.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"<send_user_message_question_reply>Option A</send_user_message_question_reply>"}]}}
+{"timestamp":"2026-10-20T10:00:05.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"Typed message about naming"}]}}

@@ -36,8 +36,21 @@ For each repeated group it shows, answer: would you want it as a permanent rule 
 appear only in your terminal; the file it writes holds group ids and labels, no text, and it prints the precision.
 Share the precision line and the file.
 
+To label Codex history instead, add `--agent codex` (reads `$CODEX_HOME/sessions`, default `~/.codex`; the question then
+names `AGENTS.md`); `score-labels.ts` takes the same flag:
+
+```bash
+CODEX_HOME=~/.codex pnpm tsx scripts/label-groups.ts evals/group-labels-codex-<your-name>.jsonl --agent codex
+```
+
 After an update, re-score the same labels without labelling again (prints numbers only):
 
 ```bash
 git pull && pnpm tsx scripts/score-labels.ts evals/group-labels-<your-name>.jsonl
+```
+
+For Codex labels, pass the same flag, or the labels will not match any group and it prints `0 of 0 labelled shown`:
+
+```bash
+pnpm tsx scripts/score-labels.ts evals/group-labels-codex-<your-name>.jsonl --agent codex
 ```

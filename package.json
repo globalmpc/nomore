@@ -1,11 +1,14 @@
 {
   "name": "@globalmpc/nomore",
   "version": "0.1.0",
-  "description": "Stop telling Claude Code the same thing twice: a CLAUDE.md rule pack from ~10k issues, and a local tool that finds what you keep repeating.",
+  "description": "Stop telling Claude Code or Codex the same thing twice: a CLAUDE.md rule pack from ~10k issues, and a local tool that finds what you keep repeating.",
   "keywords": [
     "claude-code",
     "claude",
     "claude-md",
+    "codex",
+    "openai-codex",
+    "agents-md",
     "ai-agents",
     "developer-tools",
     "cli"

@@ -1,0 +1,4 @@
+{"timestamp":"2026-10-20T10:00:00.000Z","type":"session_meta","payload":{"id":"3333aaaa","cwd":"/tmp/demo","originator":"codex-tui","source":"cli","cli_version":"0.163.0"}}
+{"timestamp":"2026-10-20T10:00:01.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"Typed before compaction"}]}}
+{"timestamp":"2026-10-20T10:00:02.000Z","type":"compacted","payload":{"message":"","replacement_history":[{"type":"message","role":"user","content":[{"type":"input_text","text":"Zebra replay text X"}]}]}}
+{"timestamp":"2026-10-20T10:00:03.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"Typed after compaction"}]}}
