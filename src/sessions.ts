@@ -20,7 +20,9 @@ export async function listSessionFiles(configDir: string, opts: { sinceMs: numbe
     const names = await readdir(join(root, d)).catch(() => [] as string[]);
     for (const f of names.filter((n) => n.endsWith(".jsonl")).sort()) {
       const path = join(root, d, f);
-      if ((await stat(path)).mtimeMs >= opts.sinceMs) files.push(path);
+      // Deleted since readdir: skip it. Any other stat error (EACCES) keeps the file, so parseSession counts it unreadable.
+      const mtime = await stat(path).then((st) => st.mtimeMs, (e: NodeJS.ErrnoException) => (e.code === "ENOENT" ? -1 : Infinity));
+      if (mtime >= opts.sinceMs) files.push(path);
     }
   }
   return files;
@@ -39,9 +41,11 @@ const resultText = (c: unknown): string =>
 // One record → zero or more events (spec › Inputs, › Not a user message). Unknown shapes yield nothing.
 function toEvents(r: Record<string, unknown>): Event[] {
   if (r.isSidechain === true || typeof r.uuid !== "string") return [];
+  // Ranking needs a time; without one the record can't be placed, so it is dropped like any other unknown shape.
+  if (typeof r.timestamp !== "string" || Number.isNaN(Date.parse(r.timestamp))) return [];
   // sdk-cli, sdk-ts, sdk-py: Claude Code run by a script, whose "user" messages are program-written templates.
   if (typeof r.entrypoint === "string" && r.entrypoint.startsWith("sdk")) return [];
-  const base = { uuid: r.uuid, sessionId: String(r.sessionId ?? ""), cwd: String(r.cwd ?? ""), ts: String(r.timestamp ?? "") };
+  const base = { uuid: r.uuid, sessionId: String(r.sessionId ?? ""), cwd: String(r.cwd ?? ""), ts: r.timestamp };
   const content = (r.message as { content?: unknown } | undefined)?.content;
   if (r.type === "user") {
     const injected = r.isMeta === true || r.isCompactSummary === true; // compaction summaries are written by Claude Code
@@ -74,19 +78,24 @@ function toEvents(r: Record<string, unknown>): Event[] {
   return [];
 }
 
-export async function parseSession(file: string): Promise<{ events: Event[]; skippedLines: number }> {
+// A file that can't be read (permissions, a folder named *.jsonl) is reported as unreadable instead of ending the run.
+export async function parseSession(file: string): Promise<{ events: Event[]; skippedLines: number; unreadable: boolean }> {
   const events: Event[] = [];
   let skippedLines = 0;
-  for await (const line of createInterface({ input: createReadStream(file), crlfDelay: Infinity })) {
-    if (line.trim() === "") continue;
-    let r: unknown;
-    try {
-      r = JSON.parse(line);
-    } catch {
-      skippedLines++; // a session still being written ends in a partial line
-      continue;
+  try {
+    for await (const line of createInterface({ input: createReadStream(file), crlfDelay: Infinity })) {
+      if (line.trim() === "") continue;
+      let r: unknown;
+      try {
+        r = JSON.parse(line);
+      } catch {
+        skippedLines++; // a session still being written ends in a partial line
+        continue;
+      }
+      if (r && typeof r === "object") events.push(...toEvents(r as Record<string, unknown>));
     }
-    if (r && typeof r === "object") events.push(...toEvents(r as Record<string, unknown>));
+  } catch {
+    return { events: [], skippedLines: 0, unreadable: true };
   }
-  return { events, skippedLines };
+  return { events, skippedLines, unreadable: false };
 }

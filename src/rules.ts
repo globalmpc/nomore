@@ -10,7 +10,8 @@ const RULE_MATCH = 0.3; // spec › Rule check
 
 // Bullet or sentence lines of the rules files; headings, blanks and missing files are skipped. A line "@path"
 // imports another file in its place (Claude Code's CLAUDE.md imports: relative to the file, or ~/), once each.
-export async function readRuleLines(paths: string[]): Promise<string[]> {
+// AGENTS.md has no imports (Codex), so callers pass imports: false and an "@x" line stays plain text.
+export async function readRuleLines(paths: string[], { imports = true }: { imports?: boolean } = {}): Promise<string[]> {
   const seen = new Set<string>();
   const read = async (path: string): Promise<string[]> => {
     if (seen.has(path)) return [];
@@ -19,7 +20,7 @@ export async function readRuleLines(paths: string[]): Promise<string[]> {
     const out: string[] = [];
     for (const raw of text.split("\n")) {
       const line = raw.trim();
-      const imp = line.match(/^@(\S+)$/);
+      const imp = imports ? line.match(/^@(\S+)$/) : null;
       if (imp) out.push(...(await read(imp[1].startsWith("~/") ? join(homedir(), imp[1].slice(2)) : resolve(dirname(path), imp[1]))));
       else if (line !== "" && !line.startsWith("#")) out.push(line.replace(/^([-*]|\d+\.)\s+/, ""));
     }

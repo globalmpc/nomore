@@ -34,7 +34,9 @@ describe("readRuleLines: imports", () => {
 describe("toSuggestions", () => {
   it("marks a group covered by an existing rule as ignored, others as new", () => {
     const [pnpm, commit] = toSuggestions(
-      [group("p", "no, use pnpm not npm", "use pnpm, not npm", "i said use pnpm"), group("k", "don't commit yet")],
+      // Clauses as the pipeline makes them: "no, use pnpm not npm" arrives as "use pnpm not npm" (issue #18).
+      // Without the comma ("no use pnpm not npm") the leading "no" still counts as a negation, so it wouldn't match.
+      [group("p", "use pnpm not npm", "use pnpm, not npm", "i said use pnpm"), group("k", "don't commit yet")],
       ["Always use pnpm, never npm", "Write tests first"],
     );
     expect(pnpm).toMatchObject({ status: "ignored", matchedRule: "Always use pnpm, never npm", text: "Use pnpm not npm" });
@@ -48,5 +50,20 @@ describe("toSuggestions: polarity", () => {
   it("doesn't treat an existing rule as covering its opposite", () => {
     const [s] = toSuggestions([group("n", "don't use npm", "don't use npm here")], ["Use npm"]);
     expect(s.status).toBe("new");
+  });
+
+  it("a negated rule without an auxiliary still covers its negated suggestion", () => {
+    const [s] = toSuggestions([group("f", "force pushes are not ok")], ["Force pushes not ok"]);
+    expect(s).toMatchObject({ status: "ignored", matchedRule: "Force pushes not ok" });
+  });
+});
+
+describe("readRuleLines: imports option", () => {
+  it("imports: false keeps an @path line as plain text and reads nothing else", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "nomore-"));
+    writeFileSync(join(dir, "AGENTS.md"), "@other.md\n- Own rule\n");
+    writeFileSync(join(dir, "other.md"), "- Imported rule\n");
+    expect(await readRuleLines([join(dir, "AGENTS.md")], { imports: false })).toEqual(["@other.md", "Own rule"]);
+    rmSync(dir, { recursive: true });
   });
 });

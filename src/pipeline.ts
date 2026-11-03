@@ -1,4 +1,5 @@
 import { join, sep } from "node:path";
+import { codexRuleFile, listRollouts, parseRollout } from "./codex.js";
 import { clauseTokens, extractInstructions, isNegated } from "./detect.js";
 import { groupItems } from "./group.js";
 import { rankGroups } from "./rank.js";
@@ -8,13 +9,19 @@ import { Report, type Correction, type Signal } from "./types.js";
 
 const GROUP_THRESHOLD = 0.6; // spec › Grouping (clauses)
 
-export async function runPipeline(opts: { configDir: string; days: number; project?: string; nowMs: number }): Promise<Report> {
-  const files = await listSessionFiles(opts.configDir, { sinceMs: opts.nowMs - opts.days * 86_400_000, project: opts.project });
+export async function runPipeline(opts: { configDir: string; days: number; project?: string; nowMs: number; agent?: "claude" | "codex" }): Promise<Report> {
+  const codex = opts.agent === "codex";
+  const [list, parse] = codex ? [listRollouts, parseRollout] : [listSessionFiles, parseSession];
+  const files = await list(opts.configDir, { sinceMs: opts.nowMs - opts.days * 86_400_000, project: opts.project });
   const corrections: Correction[] = [];
   let skippedLines = 0;
+  let scanned = files.length; // codex: only rollouts that yielded events (subagent/exec ones are skipped); claude keeps every file
+  let skippedFiles = 0;
   for (const f of files) {
-    const s = await parseSession(f);
+    const s = await parse(f);
+    if (codex && s.events.length === 0 && !s.unreadable) scanned--; // an unreadable file still counts, as for Claude (#26)
     skippedLines += s.skippedLines;
+    if (s.unreadable) skippedFiles++;
     corrections.push(...extractInstructions(s.events));
   }
   // Two project paths can share one encoded folder (/tmp/a-b, /tmp/a_b): keep only instructions from inside the project.
@@ -41,10 +48,12 @@ export async function runPipeline(opts: { configDir: string; days: number; proje
       signals: [...new Set(members.flatMap((m) => m.signals))].sort() as Signal[],
     };
   });
-  const rules = await readRuleLines([...(opts.project ? [join(opts.project, "CLAUDE.md")] : []), join(opts.configDir, "CLAUDE.md")]);
+  const ruleFile = async (dir: string) => (codex ? codexRuleFile(dir) : join(dir, "CLAUDE.md"));
+  const rules = await readRuleLines([...(opts.project ? [await ruleFile(opts.project)] : []), await ruleFile(opts.configDir)], { imports: !codex });
   return Report.parse({
-    scannedSessions: files.length,
+    scannedSessions: scanned,
     skippedLines,
+    skippedFiles,
     corrections: corrections.length,
     suggestions: toSuggestions(rankGroups(groups, opts.nowMs), rules),
   });
