@@ -1,0 +1,11 @@
+{"timestamp":"2026-10-20T10:00:00.000Z","type":"session_meta","payload":{"id":"aaaa0001","cwd":"/tmp/demo","originator":"codex-tui","source":"cli","cli_version":"0.163.0"}}
+{"timestamp":"2026-10-20T10:00:01.000Z","type":"turn_context","payload":{"cwd":"/tmp/demo","model":"demo-model"}}
+{"timestamp":"2026-10-20T10:00:02.000Z","type":"response_item","payload":{"type":"message","role":"assistant","content":[{"type":"output_text","text":"Here is the summary."}]}}
+{"timestamp":"2026-10-20T10:00:03.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"No, keep answers short"}]}}
+{"timestamp":"2026-10-20T10:00:04.000Z","type":"event_msg","payload":{"type":"user_message","message":"No, keep answers short"}}
+{"timestamp":"2026-10-20T10:00:05.000Z","type":"response_item","payload":{"type":"function_call","name":"exec_command","arguments":"{\"cmd\":\"ls\"}","call_id":"c1"}}
+{"timestamp":"not-a-date","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"dropped: bad timestamp"}]}}
+{"type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"dropped: no timestamp"}]}}
+{"timestamp":"2026-10-20T10:00:07.000Z","type":"turn_context","payload":{"cwd":"/tmp/demo/sub","model":"demo-model"}}
+{"timestamp":"2026-10-20T10:00:08.000Z","type":"response_item","payload":{"type":"message","role":"assistant","content":[{"type":"output_text","text":"Updated."}]}}
+{"timestamp":"2026-10-20T10:00:09.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"Use tabs not spaces"}]}}

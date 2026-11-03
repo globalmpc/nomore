@@ -59,6 +59,7 @@ export type Suggestion = z.infer<typeof Suggestion>;
 export const Report = z.object({
   scannedSessions: z.number(),
   skippedLines: z.number(),
+  skippedFiles: z.number(),
   corrections: z.number(),
   suggestions: z.array(Suggestion),
 });

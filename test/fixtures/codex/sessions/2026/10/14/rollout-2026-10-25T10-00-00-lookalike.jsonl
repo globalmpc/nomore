@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-25T10:00:00.000Z","type":"session_meta","payload":{"id":"lookalike","cwd":"/tmp/demo-x","originator":"codex-tui","source":"cli","cli_version":"0.163.0"}}
+{"timestamp":"2026-10-25T10:00:01.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"Lookalike project text"}]}}

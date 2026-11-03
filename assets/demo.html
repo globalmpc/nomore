@@ -1,113 +1,121 @@
 <!doctype html>
 <!-- README demo. Every frame is a pure function of ?t=<ms>, so scripts/render-demo.sh can screenshot it.
-     Without ?t it plays live in a browser. All content is synthetic. -->
+     Without ?t it plays live in a browser. All content is synthetic: the chat lines are the user messages in
+     test/fixtures/demo, and every terminal line is what `npx @globalmpc/nomore` prints for that config folder
+     (HOME=/home/you); test/demo.test.ts checks the report lines. -->
 <meta charset="utf-8">
 <title>nomore demo</title>
 <style>
   * { box-sizing: border-box; margin: 0; }
-  html, body { width: 900px; height: 500px; overflow: hidden; background: #0d1117; }
-  body { font: 15px/1.6 Menlo, "SF Mono", monospace; color: #c9d1d9; padding: 20px 24px; }
-  .caption { font: 700 32px/1.25 -apple-system, "Helvetica Neue", sans-serif; color: #f0f6fc; height: 64px; letter-spacing: -0.3px; }
+  html, body { width: 720px; height: 720px; overflow: hidden; background: #0d1117; }
+  body { font: 14px/1.55 Menlo, "SF Mono", "DejaVu Sans Mono", monospace; color: #c9d1d9; padding: 22px 22px; }
+  .caption { font: 700 30px/1.2 -apple-system, "Helvetica Neue", "Liberation Sans", sans-serif; color: #f0f6fc; height: 84px; letter-spacing: -0.3px; }
   .caption b { color: #f0883e; }
-  .win { position: relative; height: 376px; border: 1px solid #30363d; border-radius: 10px; background: #161b22; overflow: hidden; }
+  .win { position: relative; height: 570px; border: 1px solid #30363d; border-radius: 10px; background: #161b22; overflow: hidden; }
   .bar { height: 30px; border-bottom: 1px solid #30363d; padding: 0 12px; display: flex; align-items: center; gap: 7px; color: #8b949e; font-size: 12px; }
   .bar i { width: 11px; height: 11px; border-radius: 50%; background: #484f58; display: inline-block; }
   .bar span { margin-left: 8px; }
   .body { padding: 14px 18px; }
+  .body > div { white-space: pre-wrap; }
   .dim { color: #8b949e; }
   .user { color: #f0883e; }
   .ok { color: #3fb950; }
   .warn { color: #d29922; }
-  .h { color: #f0f6fc; font-weight: 700; margin-top: 10px; }
-  .row { display: flex; justify-content: space-between; }
-  .gap { height: 10px; }
-  .badge { position: absolute; right: 22px; top: 150px; padding: 10px 16px; border: 2px solid #f0883e; border-radius: 8px;
-    color: #f0883e; font: 700 20px/1.3 -apple-system, "Helvetica Neue", sans-serif; transform: rotate(-4deg); background: #161b22; }
+  .h { color: #f0f6fc; font-weight: 700; margin: 22px 0; }
+  .gap { height: 12px; }
+  .badge { position: absolute; right: 22px; bottom: 40px; padding: 10px 16px; border: 2px solid #f0883e; border-radius: 8px;
+    color: #f0883e; font: 700 20px/1.3 -apple-system, "Helvetica Neue", "Liberation Sans", sans-serif; transform: rotate(-4deg); background: #161b22; }
   .file { margin-top: 14px; border: 1px solid #30363d; border-radius: 8px; overflow: hidden; }
   .file .name { padding: 4px 12px; background: #0d1117; color: #8b949e; font-size: 12px; border-bottom: 1px solid #30363d; }
   .file .add { background: rgba(46, 160, 67, .15); color: #7ee787; padding: 0 12px; }
   .file .ctx { padding: 0 12px; color: #8b949e; }
   .cursor::after { content: ""; display: inline-block; width: 8px; height: 16px; background: #c9d1d9; vertical-align: -2px; margin-left: 1px; }
-  .end { height: 460px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 10px; }
-  .end .logo { font: 800 64px/1 -apple-system, "Helvetica Neue", sans-serif; color: #f0f6fc; letter-spacing: -2px; }
-  .end .tag { font: 600 24px/1.3 -apple-system, "Helvetica Neue", sans-serif; color: #f0883e; margin-bottom: 18px; }
+  .end { height: 676px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 12px; }
+  .end .logo { font: 800 72px/1 -apple-system, "Helvetica Neue", "Liberation Sans", sans-serif; color: #f0f6fc; letter-spacing: -2px; }
+  .end .tag { font: 600 24px/1.3 -apple-system, "Helvetica Neue", "Liberation Sans", sans-serif; color: #f0883e; margin-bottom: 22px; }
   .end .line { font-size: 16px; }
 </style>
 
-<section data-from="0" data-to="4600">
-  <div class="caption" data-at="0">You correct the same thing <b>every session</b>…</div>
+<section data-from="0" data-to="5200">
+  <div class="caption" data-at="0">You correct the same thing<br><b>every session</b>…</div>
   <div class="win">
     <div class="bar"><i></i><i></i><i></i><span>claude code</span></div>
     <div class="body">
       <div data-at="300" class="dim">── session · Monday</div>
       <div data-at="300">⏺ Bash(npm install)</div>
-      <div data-at="700" class="user">&gt; no, use pnpm not npm</div>
+      <div data-at="600" class="user">&gt; use pnpm, not npm</div>
+      <div data-at="900">⏺ Bash(git commit -m "wip")</div>
+      <div data-at="1200" class="user">&gt; don't commit yet</div>
+      <div data-at="1500">⏺ Done!</div>
+      <div data-at="1800" class="user">&gt; run the tests before saying done</div>
       <div class="gap"></div>
-      <div data-at="1300" class="dim">── session · Wednesday</div>
-      <div data-at="1300">⏺ Bash(npm run build)</div>
-      <div data-at="1700" class="user">&gt; I said pnpm</div>
+      <div data-at="2200" class="dim">── session · Wednesday</div>
+      <div data-at="2200">⏺ Bash(npm run build)</div>
+      <div data-at="2500" class="user">&gt; use pnpm, not npm</div>
+      <div data-at="2800">⏺ Bash(git commit -am "fix")</div>
+      <div data-at="3100" class="user">&gt; don't commit yet</div>
       <div class="gap"></div>
-      <div data-at="2300" class="dim">── session · Friday</div>
-      <div data-at="2300">⏺ Bash(npm test)</div>
-      <div data-at="2700" class="user">&gt; stop using npm!!</div>
+      <div data-at="3500" class="dim">── session · Friday</div>
+      <div data-at="3500">⏺ Bash(npm test)</div>
+      <div data-at="3800" class="user">&gt; i said use pnpm, not npm</div>
+      <div data-at="4100">⏺ Done.</div>
+      <div data-at="4400" class="user">&gt; run the tests before saying done</div>
     </div>
-    <div class="badge" data-at="3400">same correction ×3</div>
+    <div class="badge" data-at="4600">and again next week</div>
   </div>
 </section>
 
-<section data-from="4600" data-to="9000">
-  <div class="caption" data-at="4600"><b>nomore</b> finds what you keep repeating</div>
+<section data-from="5200" data-to="10600">
+  <div class="caption" data-at="5200"><b>nomore</b> finds what<br>you keep repeating</div>
   <div class="win">
     <div class="bar"><i></i><i></i><i></i><span>terminal</span></div>
-    <div class="body">
-      <div><span class="dim">$ </span><span data-type="npx @globalmpc/nomore" data-type-at="4700"></span></div>
-      <div data-at="5700" class="dim">nomore · 86 sessions · 571 instructions</div>
-      <div data-at="6100" class="h">Repeated instructions</div>
-      <div data-at="6400"><span class="warn">●</span> Use pnpm, not npm</div>
-      <div data-at="6500" class="dim">&nbsp;&nbsp;5× in 3 sessions, last 2026-10-22 · “no, use pnpm not npm”</div>
-      <div data-at="6900"><span class="warn">●</span> Don't commit yet</div>
-      <div data-at="7000" class="dim">&nbsp;&nbsp;4× in 2 sessions, last 2026-10-21 · “why did you commit?”</div>
-      <div data-at="7500" class="h">Rules you have, but the agent ignores</div>
-      <div data-at="7700"><span class="warn">●</span> Run tests before saying done</div>
-      <div data-at="7800" class="dim">&nbsp;&nbsp;3× in 2 sessions · rule: “Always run the tests”</div>
-    </div>
+    <div class="body"><div><span class="dim">$ </span><span data-type="npx @globalmpc/nomore" data-type-at="5500"></span></div>
+<div class="cli" data-at="7000">nomore · 3 sessions · 7 instructions</div>
+<div class="cli h" data-at="7300">Repeated instructions</div>
+<div class="cli" data-at="7600"><span class="warn">●</span> Don't commit yet</div>
+<div class="cli dim" data-at="7600">  2× in 2 sessions, last 2026-10-21</div>
+<div class="cli dim" data-at="7600">  “don't commit yet”</div>
+<div class="cli" data-at="7900"><span class="warn">●</span> Use pnpm, not npm</div>
+<div class="cli dim" data-at="7900">  3× in 3 sessions, last 2026-10-23</div>
+<div class="cli dim" data-at="7900">  “i said use pnpm, not npm”</div>
+<div class="cli dim" data-at="7900">  “use pnpm, not npm”</div>
+<div class="cli h" data-at="8500">Rules you have, but the agent ignores</div>
+<div class="cli" data-at="8800"><span class="warn">●</span> Run the tests before saying done</div>
+<div class="cli dim" data-at="8800">  2× in 2 sessions, last 2026-10-23</div>
+<div class="cli dim" data-at="8800">  “run the tests before saying done”</div>
+<div class="cli dim" data-at="8800">  rule: Always run the tests before saying you're done.</div></div>
   </div>
 </section>
 
-<section data-from="9000" data-to="13300">
-  <div class="caption" data-at="9000">…and turns them into <b>CLAUDE.md</b> rules you choose</div>
+<section data-from="10600" data-to="16800">
+  <div class="caption" data-at="10600">…and adds the ones you pick<br>to <b>CLAUDE.md</b></div>
   <div class="win">
     <div class="bar"><i></i><i></i><i></i><span>terminal</span></div>
-    <div class="body">
-      <div><span class="dim">$ </span><span data-type="npx @globalmpc/nomore --apply" data-type-at="9100"></span></div>
-      <div data-at="10300" class="dim">Rules will be added to ~/.claude/CLAUDE.md</div>
-      <div data-at="10600">Add “Use pnpm, not npm”? <span class="dim">(5× in 3 sessions) [y/n/e/q]</span> <span class="ok">y</span></div>
-      <div data-at="11000">Add “Don't commit yet”? <span class="dim">(4× in 2 sessions) [y/n/e/q]</span> <span class="ok">e</span></div>
-      <div data-at="11300">Rule: <span class="ok">Ask before committing</span></div>
-      <div data-at="11600" class="ok">✓ 2 rules added to ~/.claude/CLAUDE.md</div>
-      <div class="file" data-at="11800">
-        <div class="name">CLAUDE.md</div>
-        <div class="ctx">## nomore rules</div>
-        <div class="add" data-at="12100">+ - Use pnpm, not npm</div>
-        <div class="add" data-at="12400">+ - Ask before committing</div>
-      </div>
-    </div>
+    <div class="body"><div><span class="dim">$ </span><span data-type="npx @globalmpc/nomore --apply" data-type-at="10900"></span></div>
+<div data-at="12700">Rules will be added to /home/you/.claude/CLAUDE.md</div>
+<div class="gap"></div>
+<div data-at="13000">Add "Don't commit yet"? <span class="dim">(2× in 2 sessions) [y/n/e/q]</span> <span class="ok" data-at="13400">e</span></div>
+<div data-at="13600">Rule: <span class="ok" data-type="Ask before committing" data-type-at="13700"></span></div>
+<div data-at="14200">Add "Use pnpm, not npm"? <span class="dim">(3× in 3 sessions) [y/n/e/q]</span> <span class="ok" data-at="14500">y</span></div>
+<div data-at="14700">Your rule "Always run the tests before saying you're done." isn't followed <span class="dim">(2× in 2 sessions)</span>. Add a reworded rule? <span class="dim">[e/n/q]</span> <span class="ok" data-at="15000">n</span></div>
+<div data-at="15200" class="ok">✓ 2 rules added to /home/you/.claude/CLAUDE.md</div>
+<div class="file" data-at="15400"><div class="name">~/.claude/CLAUDE.md</div><div class="ctx">- Always run the tests before saying you're done.</div><div class="ctx"> </div><div class="ctx">## nomore rules</div><div class="ctx"> </div><div class="add" data-at="15700">+ - Ask before committing</div><div class="add" data-at="15900">+ - Use pnpm, not npm</div></div></div>
   </div>
 </section>
 
-<section data-from="13300" data-to="16500">
+<section data-from="16800" data-to="20000">
   <div class="end">
-    <div class="logo" data-at="13300">nomore</div>
-    <div class="tag" data-at="13500">Stop telling your AI agent the same thing twice.</div>
-    <div class="line" data-at="14000"><span class="ok">→</span> 20 rules from the most-reacted Claude Code issues: <span class="user">rules/CLAUDE.md</span></div>
-    <div class="line" data-at="14300"><span class="ok">→</span> Your own repeated instructions: <span class="user">npx @globalmpc/nomore</span></div>
-    <div class="line dim" data-at="14600">Runs locally. Nothing leaves your machine.</div>
+    <div class="logo" data-at="16800">nomore</div>
+    <div class="tag" data-at="17000">Stop telling Claude Code the same thing twice.</div>
+    <div class="line" data-at="17400"><span class="dim">$</span> <span class="user">npx @globalmpc/nomore</span></div>
+    <div class="line" data-at="17700"><span class="ok">→</span> plus 20 ready rules: <span class="user">github.com/globalmpc/nomore</span></div>
+    <div class="line dim" data-at="18000">Runs locally. Writes only the rules you pick.</div>
   </div>
 </section>
 
 <script>
   // SPEED stretches the whole timeline; the data-at times below are written for SPEED = 1.
-  const SPEED = 1.5, DURATION = 16500 * SPEED, TYPE_MS = 40, FADE_MS = 250;
+  const SPEED = 1.5, DURATION = 20000 * SPEED, TYPE_MS = 55, FADE_MS = 250;
   function render(t) {
     for (const s of document.querySelectorAll("[data-from]"))
       s.style.display = t >= +s.dataset.from && t < +s.dataset.to ? "" : "none";

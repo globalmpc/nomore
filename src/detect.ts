@@ -92,7 +92,44 @@ const FILLER = /^((pls|plz|please|yea|yeah|yep|yes|ok|okay|okey|now|so|just|also
 const NEGATION = /\b(not|no|never|don'?t|doesn'?t|didn'?t|isn'?t|aren'?t|won'?t|can'?t|cannot|shouldn'?t|without|jangan|tidak|bukan|tanpa)\b|지\s?마|말고|않|못/i;
 // A contrast tail ("use pnpm, not npm") qualifies a positive instruction; it doesn't negate it.
 const CONTRAST = /^(not|instead of|rather than)\b/i;
-export const isNegated = (text: string) => NEGATION.test(text.replace(/,\s*(not|instead of|rather than)\b.*$/i, ""));
+// Without the comma too, but only after a choice verb ("use pnpm not npm", "prefer tabs not spaces"): a bare
+// "X not Y" is usually an evaluation ("force pushes not ok", "do it not now") and stays negated. One word after
+// "not", two or more before, no auxiliary ("use what is not needed"), participle tail or evaluative/adverb tail.
+// ponytail: choice verbs and one-word tails only, so "run vitest not jest" and "use pnpm not the npm cli" stay negated.
+// EVAL_TAIL is not exhaustive: a missed word merges opposites ("use it not now"); extend it when one shows up.
+const CHOICE = /^(use|prefer|pick|choose|write|reply|respond|answer|install|go with|stick (with|to))\b/i;
+const EVAL_TAIL = /^(ok|okay|good|fine|bad|great|now|yet|again|anymore|always|ever|never|much|more|less|later|here|there|yes|no|it|this|that|me|you|them|flaky|needed|allowed|acceptable|ideal|welcome|useful|nice|cool|wise|appropriate|necessary|mandatory|helpful|safe|correct|right|wrong|true|today|tomorrow|first|twice|often|everywhere|anywhere|too|so|really|properly)\W*$/i;
+const AUX = /^(do|does|did|is|are|was|were|am|be|been|can|could|should|would|will|must|may|might|shall|have|has|had|need|try|\w+['’](s|re|m|ve|ll|d))$/i;
+const choiceBody = (text: string) => text.trim().replace(FILLER, "").replace(/^(always|i said)\s+/i, "");
+const isContrastWord = (w: string) => !/(ed|ing)\W*$/i.test(w) && !EVAL_TAIL.test(w);
+const dropBareContrast = (text: string) => {
+  const body = choiceBody(text);
+  const w = body.split(/\s+/);
+  const i = w.length - 2; // where "not" would be
+  return CHOICE.test(body) && i >= 2 && /^not$/i.test(w[i]) && !AUX.test(w[i - 1]) && isContrastWord(w[i + 1]) ? w.slice(0, i).join(" ") : text;
+};
+// A ", never …" tail is a contrast too (issue #18) before a description ("…, never an instruction") or, after a
+// tool-choice verb, before one word that isn't a common verb ("use pnpm, never npm"). Any other ", never …" stays
+// an instruction ("commit often, never amend", "answer briefly, never ramble", "use the API, never guess").
+// ponytail: NEVER_VERB is not exhaustive; a missed verb merges ("use X, never <verb>"); extend it when one shows up.
+const TOOL_CHOICE = /^(use|prefer|pick|choose|install|go with|stick (with|to))\b/i;
+const NEVER_VERB = /^(guess|assume|ask|skip|stop|wait|ramble|apologi[sz]e|lie|invent|hardcode|mock|retry|rewrite|refactor|rename|delete|remove|overwrite|force|amend|rebase|squash|merge|push|commit|deploy|publish|release|edit|change|touch|modify|comment|explain|summari[sz]e|speculate|hallucinate|loop|repeat|truncate|ignore)\W*$/i;
+const isContrastTail = (head: string, tail: string) => {
+  if (CONTRAST.test(tail) || /^never\s+(a|an|the)\s/i.test(tail)) return true;
+  const word = tail.match(/^never\s+(\S+)$/i)?.[1];
+  return word !== undefined && TOOL_CHOICE.test(choiceBody(head)) && isContrastWord(word) && !NEVER_VERB.test(word);
+};
+// The text without its ", never …" contrast tails, and those tails ("use pnpm, never npm, never yarn").
+const splitNeverTails = (text: string) => {
+  const tails: string[] = [];
+  for (let m = text.match(/^(.*),\s*(never\b.*)$/i); m && isContrastTail(m[1], m[2]); m = text.match(/^(.*),\s*(never\b.*)$/i)) {
+    tails.unshift(m[2]);
+    text = m[1];
+  }
+  return { head: text, tails };
+};
+export const isNegated = (text: string) =>
+  NEGATION.test(dropBareContrast(splitNeverTails(text.replace(/,\s*(not|instead of|rather than)\b.*$/i, "")).head));
 
 // Korean (spec › Repeated instructions): Hangul has no \b word boundaries, so these match as substrings.
 const KO_QUESTION = /뭐|무엇|뭔|어떻게|어떤|어디|언제|왜|얼마|몇|누구|어때|어떨까|(나요|까요|까|니|냐|습니까)[?？.!~]*$/;
@@ -109,9 +146,13 @@ const keep = (clause: string, question: boolean) => {
   return !t.includes("<url>") && words.length >= 2 && (t.length - words.length) * 2 <= t.length && !words.every((x) => ACK.has(x));
 };
 
-// Grouping tokens: plain plurals are singularised so "words" and "word" match.
-export const clauseTokens = (text: string) =>
-  tokens(normalize(text)).map((t) => (t.length > 3 && t.endsWith("s") && !t.endsWith("ss") ? t.slice(0, -1) : t));
+// Grouping tokens: plain plurals are singularised so "words" and "word" match. A contrast "never" counts like the
+// stopword "not", so "use pnpm, never npm" groups with "use pnpm, not npm".
+export const clauseTokens = (text: string) => {
+  const { head, tails } = splitNeverTails(text);
+  const asNot = head + tails.map((t) => `, not${t.slice("never".length)}`).join("");
+  return tokens(normalize(asNot)).map((t) => (t.length > 3 && t.endsWith("s") && !t.endsWith("ss") ? t.slice(0, -1) : t));
+};
 
 export function extractInstructions(events: Event[]): Correction[] {
   const signals = new Map(detectCorrections(events).map((c) => [c.uuid, c.signals]));
@@ -122,7 +163,7 @@ export function extractInstructions(events: Event[]): Correction[] {
       .filter((line) => !isPasted(line.trim()))
       .join("\n")
       .split(/\n+|(?<=[.;!?？])\s+|,\s+|\s+(?:and|but)\s+/i)
-      .reduce<string[]>((parts, p) => (CONTRAST.test(p.trim()) && parts.length ? [...parts.slice(0, -1), `${parts.at(-1)}, ${p.trim()}`] : [...parts, p]), [])
+      .reduce<string[]>((parts, p) => (parts.length && isContrastTail(parts.at(-1)!, p.trim()) ? [...parts.slice(0, -1), `${parts.at(-1)}, ${p.trim()}`] : [...parts, p]), [])
       .map((raw, i) => ({ c: raw.trim().replace(/[.;!?？]+$/, "").trim(), q: /[?？]\s*$/.test(raw), i }))
       .filter(({ c, q }) => keep(c, q))
       .map(({ c, i }) => ({ uuid: `${e.uuid}:${i}`, sessionId: e.sessionId, cwd: e.cwd, ts: e.ts, text: c, norm: normalize(c), signals: signals.get(e.uuid) ?? [] }));

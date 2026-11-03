@@ -51,7 +51,7 @@ describe("parseSession: IDE and multi-block messages", () => {
     const { join } = await import("node:path");
     const dir = mkdtempSync(join(tmpdir(), "nomore-"));
     const f = join(dir, "s.jsonl");
-    writeFileSync(f, records.map((r, i) => JSON.stringify({ type: "user", uuid: `u${i}`, sessionId: "s", cwd: "/c", timestamp: "t", entrypoint: "claude-vscode", ...r })).join("\n"));
+    writeFileSync(f, records.map((r, i) => JSON.stringify({ type: "user", uuid: `u${i}`, sessionId: "s", cwd: "/c", timestamp: "2026-10-23T09:00:00Z", entrypoint: "claude-vscode", ...r })).join("\n"));
     const { events } = await parseSession(f);
     rmSync(dir, { recursive: true });
     return events.filter((e) => e.kind === "user_text").map((e) => e.text);
