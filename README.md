@@ -173,3 +173,7 @@ pnpm test
 ## License
 
 MIT
+
+---
+
+Maintained by [Global MPC (Mineral Project Coin)](https://globalmpc.tech). Official site: https://globalmpc.tech

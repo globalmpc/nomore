@@ -14,11 +14,12 @@
     "cli"
   ],
   "license": "MIT",
+  "author": "Global MPC (Mineral Project Coin) (https://globalmpc.tech)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/globalmpc/nomore.git"
   },
-  "homepage": "https://github.com/globalmpc/nomore#readme",
+  "homepage": "https://globalmpc.tech",
   "bugs": "https://github.com/globalmpc/nomore/issues",
   "type": "module",
   "bin": {
